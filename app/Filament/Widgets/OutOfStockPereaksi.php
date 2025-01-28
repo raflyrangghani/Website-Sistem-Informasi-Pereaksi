@@ -10,6 +10,7 @@ use App\Models\Pereaksi;
 
 class OutOfStockPereaksi extends BaseWidget
 {
+    protected int | string | array $columnSpan = 1;
     public function table(Table $table): Table
     {
         return $table
@@ -35,4 +36,5 @@ class OutOfStockPereaksi extends BaseWidget
                     })
             ]);
     }
+    protected static ?int $sort = 4;
 }

@@ -13,7 +13,6 @@ use App\Models\RestockHistory;
 class PereaksiRestock extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-
     protected static string $view = 'filament.pages.pereaksi-restock';
     protected static ?string $navigationLabel = 'Penambahan Stok Pereaksi';
     protected static ?string $title = 'Penambahan Stok Pereaksi';
@@ -60,10 +59,7 @@ class PereaksiRestock extends Page
 
         $pereaksi = Pereaksi::where('KODE', $data['item'])->first();  // Mencari pereaksi berdasarkan KODE
         if ($pereaksi) {
-            // Menambah stock dari tabel Pereaksi
-            $pereaksi->Stock += $data['jumlah'];
-            $pereaksi->save();
-
+            
             RestockHistory::create([
                 'KODE' => $data['item'],
                 'nama_pereaksi' => $pereaksi->ITEM,

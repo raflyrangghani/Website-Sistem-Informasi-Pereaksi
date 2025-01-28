@@ -9,27 +9,26 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OutOfStockNotification extends Mailable
+class StockAlert extends Mailable
 {
     use Queueable, SerializesModels;
     public $pereaksi;
-    public $status;
-    /**
-     * Create a new message instance.
-     */
-    public function __construct()
+    public $alertReagents;
+    public $user;
+
+    public function __construct($alertReagents, $user)
     {
-        $this->pereaksi = $pereaksi;
-        $this->status = $status;
+        $this->alertReagents = $alertReagents;
+        $this->user = $user;
     }
-    
+
     /**
      * Get the message envelope.
      */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Out Of Stock Notification',
+            subject: 'Reagent Stock Alert - Action Required',
         );
     }
 
@@ -38,12 +37,13 @@ class OutOfStockNotification extends Mailable
      */
     public function content(): Content
     {
-        return $this->view('emails.OutOfStockNotification')
-                    ->with([
-                        'pereaksi' => $this->pereaksi,
-                        'status' => $this->status,
-                    ]);
-    
+        return new Content(
+            view: 'emails.OutOfStockNotification',
+            with: [
+                'alertReagents' => $this->alertReagents,
+                'user' => $this->user
+            ]
+        );
     }
 
     /**
