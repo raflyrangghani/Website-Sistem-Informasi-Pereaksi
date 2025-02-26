@@ -23,12 +23,12 @@ return Application::configure(basePath: dirname(__DIR__))
         \App\Console\Commands\SendStockAlert::class,
     ])
     ->withSchedule(function (Schedule $schedule) {
-        // $enabled = Setting::where('key', 'stock_alert_enabled')->value('value') ?? false;
-        // if ($enabled) {
+        $enabled = Setting::where('key', 'stock_alert_enabled')->value('value') ?? false;
+        if ($enabled) {
             $schedule->command('stock:alert')
                      ->weekdays()
                      ->dailyAt('09:00')
                      ->timezone('Asia/Jakarta');
-        // }
+        }
     })
     ->create();
