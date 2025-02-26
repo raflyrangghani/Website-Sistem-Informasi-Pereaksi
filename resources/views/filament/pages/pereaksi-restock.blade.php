@@ -15,7 +15,7 @@
 
         <div style="margin-top: 24px;">
             <x-filament::button type="submit">
-                Simpan
+                Submit
             </x-filament::button>
         </div>
     </form>

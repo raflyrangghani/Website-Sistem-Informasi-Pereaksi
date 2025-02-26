@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UsageHistoryResource\Pages;
 use App\Filament\Resources\UsageHistoryResource\RelationManagers;
 use App\Models\UsageHistory;
+use App\Models\User;
+use App\Models\Pereaksi;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,6 +15,10 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 
 class UsageHistoryResource extends Resource
 {
@@ -20,11 +26,45 @@ class UsageHistoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'History';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                Select::make('nama_analis')
+                    ->label('Nama Analis')
+                    ->options(User::all()->pluck('name', 'name')->toArray()) // Ambil nama dari tabel User
+                    ->reactive()
+                    ->searchable()
+                    ->required()
+                    ->default(auth()->user()->name), // Default ke nama user yang login
+                Select::make('nama_reagent')
+                    ->label('Nama Reagent')
+                    ->options(Pereaksi::all()->pluck('nama_reagent', 'nama_reagent')->toArray())
+                    ->reactive()
+                    ->searchable()
+                    ->required()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $pereaksi = Pereaksi::where('nama_reagent', $state)->first();
+                        if ($pereaksi) {
+                            $set('kode_reagent', $pereaksi->kode_reagent);
+                            $set('jenis_reagent', $pereaksi->jenis_reagent);
+                        }
+                    }),
+                TextInput::make('kode_reagent')
+                    ->label('Kode Reagent')
+                    ->disabled()
+                    ->required(),
+                TextInput::make('jenis_reagent')
+                    ->label('Jenis Reagent')
+                    ->disabled(),
+                Select::make('jumlah_penggunaan')
+                    ->label('Jumlah Penggunaan (Gram)')
+                    ->options([
+                        4 => '4',
+                        8 => '8',
+                    ])
+                    ->required(),
             ]);
     }
 
@@ -36,12 +76,16 @@ class UsageHistoryResource extends Resource
                     ->label('Nama Analis')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('KODE')
-                    ->label('Kode Pereaksi')
+                TextColumn::make('kode_reagent')
+                    ->label('Kode Reagent')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('jenis_pereaksi')
-                    ->label('Jenis Pereaksi')
+                TextColumn::make('nama_reagent')
+                    ->label('Nama Reagent')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('jenis_reagent')
+                    ->label('Jenis Reagent')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('jumlah_penggunaan')

@@ -6,19 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
         Schema::create('usage_histories', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->string('nama_analis');
-            $table->string('KODE');
-            $table->string('jenis_pereaksi');
+            $table->string('kode_reagent')->index('fk_kode_pereaksi');
+            $table->string('nama_reagent')->nullable();
+            $table->string('jenis_reagent');
             $table->integer('jumlah_penggunaan');
             $table->timestamps();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists('usage_histories');
     }

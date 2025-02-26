@@ -10,8 +10,9 @@ class UsageHistory extends Model
     use HasFactory;
     protected $fillable = [
         'nama_analis',
-        'KODE',
-        'jenis_pereaksi',
+        'kode_reagent',
+        'nama_reagent',
+        'jenis_reagent',
         'jumlah_penggunaan',
     ];
 
@@ -22,7 +23,7 @@ class UsageHistory extends Model
         parent::boot();
 
         static::created(function ($usageHistory) {
-            $pereaksi = Pereaksi::where('KODE', $usageHistory->KODE)->first();
+            $pereaksi = Pereaksi::where('kode_reagent', $usageHistory->kode_reagent)->first();
             if ($pereaksi) {
                 $pereaksi->Stock -= $usageHistory->jumlah_penggunaan;
                 $pereaksi->save(); // Ini akan trigger observer untuk cek status dan kirim notifikasi
@@ -32,6 +33,6 @@ class UsageHistory extends Model
 
     public function pereaksi()
     {
-        return $this->belongsTo(Pereaksi::class, 'KODE', 'KODE');
+        return $this->belongsTo(Pereaksi::class, 'kode_reagent', 'kode_reagent');
     }
 }

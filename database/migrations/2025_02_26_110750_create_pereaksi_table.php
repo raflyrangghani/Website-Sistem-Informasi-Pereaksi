@@ -6,19 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
         Schema::create('pereaksi', function (Blueprint $table) {
-            $table->string('KODE')->primary();
-            $table->string('ITEM');
-            $table->string('TYPE');
+            $table->string('kode_reagent')->primary();
+            $table->string('nama_reagent');
+            $table->string('jenis_reagent');
             $table->integer('Stock')->default(0);
-            $table->string('Status')->default('Out of Stock');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists('pereaksi');
     }

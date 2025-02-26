@@ -3,16 +3,17 @@
 return [
     'shield_resource' => [
         'should_register_navigation' => true,
-        'slug' => 'roles',
-        'resource' => \App\Filament\Resources\ShieldRoleResource::class,
+        'slug' => 'shield/roles',
         'navigation_sort' => -1,
         'navigation_badge' => true,
-        'navigation_group' => 'Settings',
+        'navigation_group' => true,
         'is_globally_searchable' => false,
         'show_model_path' => true,
         'is_scoped_to_tenant' => true,
         'cluster' => null,
     ],
+
+    'tenant_model' => null,
 
     'auth_provider_model' => [
         'fqcn' => 'App\\Models\\User',
@@ -36,14 +37,8 @@ return [
             'view_any',
             'create',
             'update',
-            'restore',
-            'restore_any',
-            'replicate',
-            'reorder',
             'delete',
             'delete_any',
-            'force_delete',
-            'force_delete_any',
         ],
 
         'page' => 'page',

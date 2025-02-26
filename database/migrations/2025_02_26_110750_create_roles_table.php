@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('usage_histories', function (Blueprint $table) {
-            $table->foreign(['KODE'], 'fk_kode_pereaksi')->references(['KODE'])->on('pereaksi')->onUpdate('cascade')->onDelete('cascade');
+        Schema::create('roles', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('guard_name');
+            $table->timestamps();
+
+            $table->unique(['name', 'guard_name']);
         });
     }
 
@@ -21,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('usage_histories', function (Blueprint $table) {
-            $table->dropForeign('fk_kode_pereaksi');
-        });
+        Schema::dropIfExists('roles');
     }
 };

@@ -8,17 +8,21 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Grid;
+use Filament\Notifications\Notification;
 use App\Models\RestockHistory;
+
 
 class PereaksiRestock extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-document-plus';
     protected static string $view = 'filament.pages.pereaksi-restock';
-    protected static ?string $navigationLabel = 'Penambahan Stok Pereaksi';
-    protected static ?string $title = 'Penambahan Stok Pereaksi';
+    protected static ?string $navigationLabel = 'Reagent Restocking';
+    protected static ?string $title = 'Reagent Restocking';
     protected static ?string $navigationGroup = 'Form';
-    public $type;
-    public $item;
+    
+    public $jenis_reagent = null;
+    public $nama_reagent = null;
+    public $kode_reagent = null; // Tambahkan untuk menyimpan kode_reagent
     public $jumlah;
 
     protected function getFormSchema(): array
@@ -26,49 +30,66 @@ class PereaksiRestock extends Page
         return [
             Grid::make(['default' => 2]) // Create a grid with 2 columns
                 ->schema([
-                    Select::make('item')
-                        ->label('Nama Pereaksi')
-                        ->options(Pereaksi::all()->pluck('ITEM', 'KODE')->toArray())
+                    Select::make('nama_reagent')
+                        ->label('Nama Reagent')
+                        ->options(Pereaksi::all()->pluck('nama_reagent', 'nama_reagent')->toArray())
                         ->reactive()
                         ->searchable()
                         ->preload()
                         ->required()
-                        ->afterStateUpdated(fn($state) => $this->setJenisType($state)),
-
-                    TextInput::make('type')
-                        ->label('Jenis Pereaksi')
+                        ->afterStateUpdated(fn($state, callable $set) => $this->setJenisType($state, $set))
+                        ->placeholder('Pilih nama reagent'),
+                    TextInput::make('jenis_reagent')
+                        ->label('Jenis Reagent')
                         ->disabled()
-                        ->default($this->type),
+                        ->default($this->jenis_reagent),
                 ]),
             TextInput::make('jumlah')
                 ->label('Jumlah Restock (Gram)')
                 ->numeric()
-                ->required(),
+                ->required()
+                ->minValue(1),
         ];
     }
-    protected function setJenisType($state)
+
+    protected function setJenisType($state, callable $set)
     {
-        $pereaksi = Pereaksi::find($state);
+        $pereaksi = Pereaksi::where('nama_reagent', $state)->first();
         if ($pereaksi) {
-            $this->type = $pereaksi->TYPE;
+            $this->jenis_reagent = $pereaksi->jenis_reagent;
+            $this->nama_reagent = $pereaksi->nama_reagent;
+            $this->kode_reagent = $pereaksi->kode_reagent; // Simpan kode_reagent
+            $set('jenis_reagent', $pereaksi->jenis_reagent);
         }
     }
+
     public function submit()
     {
         $data = $this->form->getState();  // Mengambil data dari form
 
-        $pereaksi = Pereaksi::where('KODE', $data['item'])->first();  // Mencari pereaksi berdasarkan KODE
+        $pereaksi = Pereaksi::where('nama_reagent', $data['nama_reagent'])->first();
+
         if ($pereaksi) {
             
             RestockHistory::create([
-                'KODE' => $data['item'],
-                'nama_pereaksi' => $pereaksi->ITEM,
+                'kode_reagent' => $pereaksi->kode_reagent, 
+                'nama_reagent' => $pereaksi->nama_reagent,
+                'jenis_reagent' => $pereaksi->jenis_reagent,
                 'jumlah_restock' => $data['jumlah'],
             ]);
 
-            session()->flash('message', 'Pereaksi berhasil direstock!');  // Menampilkan pesan sukses
+            Notification::make()
+                ->title('Saved successfully')
+                ->icon('heroicon-o-check-circle')
+                ->iconColor('success')
+                ->send();  // Menampilkan pesan sukses
         } else {
-            session()->flash('error', 'Pereaksi tidak ditemukan!');  // Menampilkan pesan error jika pereaksi tidak ditemukan
+            Notification::make()
+                ->title('Reagent not found')
+                ->icon('heroicon-o-x-circle')
+                ->iconColor('error')
+                ->send();  // Menampilkan pesan error
+            
         }
     }
 }

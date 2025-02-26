@@ -10,10 +10,12 @@ class RestockHistory extends Model
     use HasFactory;
 
     protected $fillable = [
-        'KODE',
-        'nama_pereaksi',
+        'kode_reagent',
+        'nama_reagent',
+        'jenis_reagent',
         'jumlah_restock',
     ];
+    
     public $timestamps = true;
 
     protected static function boot()
@@ -21,7 +23,7 @@ class RestockHistory extends Model
         parent::boot();
 
         static::created(function ($restockHistory) {
-            $pereaksi = Pereaksi::where('KODE', $restockHistory->KODE)->first();
+            $pereaksi = Pereaksi::where('kode_reagent', $restockHistory->kode_reagent)->first();
             if ($pereaksi) {
                 $pereaksi->Stock += $restockHistory->jumlah_restock;
                 $pereaksi->save(); // Ini akan trigger observer untuk update status
@@ -31,6 +33,6 @@ class RestockHistory extends Model
 
     public function pereaksi()
     {
-        return $this->belongsTo(Pereaksi::class, 'KODE', 'KODE');
+        return $this->belongsTo(Pereaksi::class, 'kode_reagent', 'kode_reagent');
     }
 }

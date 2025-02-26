@@ -6,18 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
         Schema::create('restock_histories', function (Blueprint $table) {
-            $table->id();
-            $table->string('KODE');
-            $table->string('nama_pereaksi');
+            $table->bigIncrements('id');
+            $table->string('kode_reagent');
+            $table->string('nama_reagent');
+            $table->string('jenis_reagent')->nullable();
             $table->integer('jumlah_restock');
             $table->timestamps();
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists('restock_histories');
     }
