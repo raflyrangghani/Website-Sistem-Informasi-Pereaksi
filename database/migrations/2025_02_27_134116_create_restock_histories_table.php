@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('restock_histories', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('kode_reagent');
+            $table->string('kode_reagent')->index('fk_kode_pereaksi_rh');
             $table->string('nama_reagent');
             $table->string('jenis_reagent')->nullable();
             $table->integer('jumlah_restock');
