@@ -66,9 +66,9 @@ class SummaryResource extends Resource
                 Filter::make('date_range')
                     ->form([
                         DatePicker::make('start_date')
-                            ->label('Dari Tanggal'),
+                            ->label('From'),
                         DatePicker::make('end_date')
-                            ->label('Sampai Tanggal'),
+                            ->label('To'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         // Simpan filter ke session atau state sementara

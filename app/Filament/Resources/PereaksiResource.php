@@ -11,6 +11,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
@@ -34,7 +36,11 @@ class PereaksiResource extends Resource
             ->schema([
                 TextInput::make('kode_reagent')
                     ->required()
-                    ->unique(table: Pereaksi::class) 
+                    ->unique(
+                        table: Pereaksi::class,
+                        column: 'kode_reagent',
+                        ignorable: fn ($record) => $record
+                    ) 
                     ->label('Kode Reagent')
                     ->placeholder('Masukkan kode reagent'),
                 TextInput::make('nama_reagent')
@@ -45,12 +51,12 @@ class PereaksiResource extends Resource
                     ->required()
                     ->label('Jenis Reagent')
                     ->options([
-                        'Corrosive Chemicals' => 'Corrosive Chemicals',
-                        'Flammable Chemicals' => 'Flammable Chemicals',
-                        'Harmful Chemicals' => 'Harmful Chemicals',
-                        'Irritant Chemicals' => 'Irritant Chemicals',
-                        'Oxidizing Chemicals' => 'Oxidizing Chemicals',
-                        'Toxic Chemicals' => 'Toxic Chemicals',
+                        'Corrosive' => 'Corrosive',
+                        'Flammable' => 'Flammable',
+                        'Harmful' => 'Harmful',
+                        'Irritant' => 'Irritant',
+                        'Oxidizing' => 'Oxidizing',
+                        'Toxic' => 'Toxic',
                     ])
                     ->placeholder('Masukkan jenis reagent'),
                 TextInput::make('Stock')
@@ -91,7 +97,38 @@ class PereaksiResource extends Resource
                     })
             ])
             ->filters([
-                //
+                SelectFilter::make('jenis_reagent')
+                    ->label('Jenis Reagent')
+                    ->options(Pereaksi::distinct()->pluck('jenis_reagent', 'jenis_reagent')->toArray())
+                    ->multiple()
+                    ->query(fn (Builder $query, array $data): Builder => $query->when($data['values'], fn (Builder $q) => $q->whereIn('jenis_reagent', $data['values'])))
+                    ->placeholder('Pilih jenis reagent'),
+                Filter::make('stock_range')
+                    ->form([
+                        TextInput::make('stock_min')
+                            ->label('Stok Minimum')
+                            ->numeric()
+                            ->placeholder('Masukkan stok minimum'),
+                        TextInput::make('stock_max')
+                            ->label('Stok Maksimum')
+                            ->numeric()
+                            ->placeholder('Masukkan stok maksimum'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['stock_min'], fn (Builder $q) => $q->where('Stock', '>=', $data['stock_min']))
+                            ->when($data['stock_max'], fn (Builder $q) => $q->where('Stock', '<=', $data['stock_max']));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['stock_min']) {
+                            $indicators[] = 'Stok Min: ' . $data['stock_min'];
+                        }
+                        if ($data['stock_max']) {
+                            $indicators[] = 'Stok Max: ' . $data['stock_max'];
+                        }
+                        return $indicators;
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -99,6 +136,31 @@ class PereaksiResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('edit_multiple')
+                        ->label('Edit Multiple')
+                        ->icon('heroicon-o-pencil-square')
+                        ->form([
+                            Select::make('jenis_reagent')
+                                ->label('Jenis Reagent')
+                                ->options([
+                                    'Corrosive' => 'Corrosive',
+                                    'Flammable' => 'Flammable',
+                                    'Harmful' => 'Harmful',
+                                    'Irritant' => 'Irritant',
+                                    'Oxidizing' => 'Oxidizing',
+                                    'Toxic' => 'Toxic',
+                                ])
+                                ->placeholder('Pilih jenis reagent'),
+                        ])
+                        ->action(function (array $data, $records) {
+                            foreach ($records as $record) {
+                                $record->update([
+                                    'jenis_reagent' => $data['jenis_reagent'] ?? $record->jenis_reagent,
+                                    'Stock' => $data['Stock'] ?? $record->Stock,
+                                ]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])

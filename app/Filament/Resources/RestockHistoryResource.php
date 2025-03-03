@@ -25,6 +25,7 @@ class RestockHistoryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'History';
+    protected static ?string $label = 'Restock History';
     public static function form(Form $form): Form
     {
         return $form
@@ -70,7 +71,7 @@ class RestockHistoryResource extends Resource
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('jenis_reagent')
-                    ->label('Nama Reagent')
+                    ->label('Jenis Reagent')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('jumlah_restock')
@@ -85,8 +86,10 @@ class RestockHistoryResource extends Resource
             ->filters([
                 Filter::make('created_at')
                     ->form([
-                        DatePicker::make('created_from'),
-                        DatePicker::make('created_until'),
+                        DatePicker::make('created_from')
+                            ->label('From'),
+                        DatePicker::make('created_until')
+                            ->label('To'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -102,6 +105,7 @@ class RestockHistoryResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
