@@ -45,11 +45,11 @@ class RestockHistoryResource extends Resource
                     }),
                 TextInput::make('kode_reagent')
                     ->label('Kode Reagent')
-                    ->disabled()
+                    ->readOnly() // Ganti disabled() dengan readOnly()
                     ->required(),
                 TextInput::make('jenis_reagent')
                     ->label('Jenis Reagent')
-                    ->disabled(),
+                    ->readOnly(),
                 TextInput::make('jumlah_restock')
                     ->label('Jumlah Restock (Gram)')
                     ->numeric()
@@ -103,6 +103,7 @@ class RestockHistoryResource extends Resource
                             );
                     })
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
@@ -129,4 +130,5 @@ class RestockHistoryResource extends Resource
             'edit' => Pages\EditRestockHistory::route('/{record}/edit'),
         ];
     }
+
 }

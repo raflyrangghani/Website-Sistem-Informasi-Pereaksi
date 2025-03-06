@@ -76,13 +76,11 @@ class PereaksiUsage extends Page
                             return ['class' => "font-bold $color"];
                         }),
                 ]),
-            Select::make('jumlah')
+            TextInput::make('jumlah')
                 ->label('Jumlah Penggunaan (Gram)')
-                ->options([
-                    4 => '4',
-                    8 => '8',
-                ])
-                ->required(),
+                ->numeric()
+                ->required()
+                ->minValue(1),
         ];
     }
 

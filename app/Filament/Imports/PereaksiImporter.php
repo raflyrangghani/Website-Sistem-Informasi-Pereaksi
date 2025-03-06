@@ -3,9 +3,12 @@
 namespace App\Filament\Imports;
 
 use App\Models\Pereaksi;
+use App\Models\RestockHistory;
+use App\Models\UsageHistory;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Illuminate\Support\Facades\Auth;
 
 class PereaksiImporter extends Importer
 {
@@ -32,6 +35,41 @@ class PereaksiImporter extends Importer
 
     public function resolveRecord(): ?Pereaksi
     {
+        $existingRecord = Pereaksi::where('kode_reagent', $this->data['kode_reagent'])->first();
+
+        if ($existingRecord) {
+            // Ambil stok lama
+            $oldStock = $existingRecord->Stock;
+            $newStock = (int) $this->data['Stock'];
+
+            // Hitung perbedaan stok
+            $stockDifference = $newStock - $oldStock;
+
+            // Jika stok bertambah, catat ke RestockHistory
+            if ($stockDifference > 0) {
+                RestockHistory::create([
+                    'kode_reagent' => $this->data['kode_reagent'],
+                    'nama_reagent' => $this->data['nama_reagent'],
+                    'jenis_reagent' => $this->data['jenis_reagent'],
+                    'jumlah_restock' => $stockDifference,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            // Jika stok berkurang, catat ke UsageHistory
+            elseif ($stockDifference < 0) {
+                UsageHistory::create([
+                    'nama_analis' => Auth::user()->name ?? 'Imported', // Default ke user yang login atau "Imported"
+                    'kode_reagent' => $this->data['kode_reagent'],
+                    'nama_reagent' => $this->data['nama_reagent'],
+                    'jenis_reagent' => $this->data['jenis_reagent'],
+                    'jumlah_penggunaan' => abs($stockDifference), // Gunakan nilai absolut untuk jumlah penggunaan
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+        
         return Pereaksi::firstOrNew([
             // Update existing records, matching them by `$this->data['column_name']`
             'kode_reagent' => $this->data['kode_reagent'],

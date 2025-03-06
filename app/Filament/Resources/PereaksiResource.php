@@ -6,6 +6,7 @@ use App\Filament\Resources\PereaksiResource\Pages;
 use App\Filament\Resources\PereaksiResource\RelationManagers;
 use App\Models\Pereaksi;
 use App\Filament\Imports\PereaksiImporter;
+use App\Filament\Exports\PereaksiExporter;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,7 +18,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ImportAction;
+use Filament\Actions\Exports\Models\Export;
 use Filament\Forms\Components\Select;
 
 
@@ -165,6 +168,12 @@ class PereaksiResource extends Resource
                 ]),
             ])
             ->headerActions([
+                ExportAction::make()
+                    ->label('Export CSV/XLSX')
+                    ->exporter(PereaksiExporter::class)
+                    ->fileName(fn (Export $export): string => "Stock Opname-{$export->getKey()}")
+                    ->color('success')
+                    ->icon('heroicon-o-table-cells'),
                 ImportAction::make()->importer(PereaksiImporter::class)
             ]);
     }
