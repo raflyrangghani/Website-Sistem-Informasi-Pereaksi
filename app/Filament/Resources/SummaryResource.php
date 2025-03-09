@@ -54,13 +54,14 @@ class SummaryResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('total_penggunaan')
-                    ->label('Total Penggunaan (Gram)')
+                    ->label('Total Penggunaan')
                     ->sortable()
                     ->formatStateUsing(fn ($state) => number_format($state, 2))
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()->label('Total Keseluruhan'),
                         Tables\Columns\Summarizers\Count::make()->label('Jumlah Entri'),
-                    ]),
+                    ])
+                    ->suffix(fn (Summary $record) => ' ' . $record->satuan),
             ])
             ->filters([
                 Filter::make('date_range')

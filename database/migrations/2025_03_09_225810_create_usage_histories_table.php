@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('nama_reagent')->nullable();
             $table->string('jenis_reagent');
             $table->integer('jumlah_penggunaan');
+            $table->string('satuan', 6)->nullable();
             $table->timestamps();
         });
     }

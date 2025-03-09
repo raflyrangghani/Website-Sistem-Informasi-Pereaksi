@@ -27,8 +27,9 @@ class PereaksiUsage extends Page
     public $kode_reagent = null;
     public $jumlah;
     public $nama;
-    public $stock = null; // Tambahkan properti untuk stock
+    public $stock = null;
     public $status = null;
+    public $satuan = null;
 
     public function mount()
     {
@@ -58,7 +59,8 @@ class PereaksiUsage extends Page
                         ->disabled()
                         ->default($this->jenis_reagent),
                     TextInput::make('stock')
-                        ->label('Jumlah Stock (Gram)')
+                        ->suffix(fn() => $this->satuan ?? 'satuan')
+                        ->label('Jumlah Stock')
                         ->disabled()
                         ->default($this->stock),
                     TextInput::make('status')
@@ -77,7 +79,8 @@ class PereaksiUsage extends Page
                         }),
                 ]),
             TextInput::make('jumlah')
-                ->label('Jumlah Penggunaan (Gram)')
+                ->label('Jumlah Penggunaan')
+                ->suffix(fn() => $this->satuan ?? 'satuan')
                 ->numeric()
                 ->required()
                 ->minValue(1),
@@ -93,6 +96,7 @@ class PereaksiUsage extends Page
             $this->kode_reagent = $pereaksi->kode_reagent;
             $this->stock = $pereaksi->Stock; // Set stock
             $this->status = $pereaksi->status; // Set status dari accessor
+            $this->satuan = $pereaksi->satuan;
             $set('jenis_reagent', $pereaksi->jenis_reagent);
             $set('stock', $pereaksi->Stock); // Update field stock
             $set('status', $pereaksi->status); // Update field status
@@ -117,6 +121,7 @@ class PereaksiUsage extends Page
                 'nama_reagent' => $pereaksi->nama_reagent,
                 'stock' => $pereaksi->Stock,
                 'jumlah_diminta' => $data['jumlah'],
+                'satuan' => $pereaksi->satuan,
             ]);
         } else {
             Log::warning('Pereaksi tidak ditemukan untuk kode_reagent: ' . $data['nama_reagent']);
@@ -131,6 +136,7 @@ class PereaksiUsage extends Page
                 'nama_reagent' => $this->nama_reagent,
                 'jenis_reagent' => $this->jenis_reagent,
                 'jumlah_penggunaan' => $data['jumlah'],
+                'satuan' => $pereaksi->satuan,
             ]);
 
             // Update Summary secara langsung

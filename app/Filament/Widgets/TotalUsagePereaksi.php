@@ -73,5 +73,5 @@ class TotalUsagePereaksi extends BaseWidget
     {
         return (string) $record->kode_reagent; // Menggunakan KODE sebagai unique identifier
     }
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 }

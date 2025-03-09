@@ -24,6 +24,7 @@ class PereaksiRestock extends Page
     public $nama_reagent = null;
     public $kode_reagent = null; // Tambahkan untuk menyimpan kode_reagent
     public $jumlah;
+    public $satuan = null;
 
     protected function getFormSchema(): array
     {
@@ -45,7 +46,8 @@ class PereaksiRestock extends Page
                         ->default($this->jenis_reagent),
                 ]),
             TextInput::make('jumlah')
-                ->label('Jumlah Restock (Gram)')
+                ->suffix(fn() => $this->satuan ?? 'satuan')
+                ->label('Jumlah Restock')
                 ->numeric()
                 ->required()
                 ->minValue(1),
@@ -59,6 +61,7 @@ class PereaksiRestock extends Page
             $this->jenis_reagent = $pereaksi->jenis_reagent;
             $this->nama_reagent = $pereaksi->nama_reagent;
             $this->kode_reagent = $pereaksi->kode_reagent; // Simpan kode_reagent
+            $this->satuan = $pereaksi->satuan;
             $set('jenis_reagent', $pereaksi->jenis_reagent);
         }
     }
@@ -76,6 +79,7 @@ class PereaksiRestock extends Page
                 'nama_reagent' => $pereaksi->nama_reagent,
                 'jenis_reagent' => $pereaksi->jenis_reagent,
                 'jumlah_restock' => $data['jumlah'],
+                'satuan' => $pereaksi->satuan,
             ]);
 
             Notification::make()

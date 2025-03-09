@@ -8,18 +8,20 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Widgets\TableWidget as BaseWidget;
 use App\Models\Pereaksi;
 
-class OutOfStockPereaksi extends BaseWidget
+class UnderStockPereaksi extends BaseWidget
 {
     protected int | string | array $columnSpan = 1;
     public function getTableHeading(): string
     {
-        return "Out of Stock Reagent";
+        return "Under Stock Reagent";
     }
     public function table(Table $table): Table
     {
         return $table
             ->query(
-                Pereaksi::query()->where('Stock', 0)
+                Pereaksi::query()
+                    ->whereRaw('Stock < min_stock') // Stok di bawah minimum
+                    ->where('Stock', '>', 0) // Tapi bukan 0 (Out of Stock)
             )
             ->columns([
                 TextColumn::make('kode_reagent')
@@ -38,7 +40,8 @@ class OutOfStockPereaksi extends BaseWidget
                         'Under Stock' => 'warning',
                         'Out of Stock' => 'danger',
                     })
-            ]);
+            ])
+            ->defaultSort('Stock', 'asc');
     }
-    protected static ?int $sort = 7;
+    protected static ?int $sort = 6;
 }

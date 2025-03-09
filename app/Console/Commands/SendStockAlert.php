@@ -16,7 +16,10 @@ class SendStockAlert extends Command
     public function handle()
     {
         // Ambil semua pereaksi yang out of stock (0) atau under stock (<= 500)
-        $alertReagents = Pereaksi::where('Stock', '<=', 500)->get();
+        $alertReagents = Pereaksi::where(function ($query) {
+            $query->where('Stock', 0) // Out of Stock
+                  ->orWhereRaw('Stock <= min_stock'); // Under Stock
+        })->get();
 
         if ($alertReagents->isEmpty()) {
             $this->info('No reagents are out of stock or under stock.');

@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pereaksi', function (Blueprint $table) {
-            $table->string('kode_reagent')->primary();
+        Schema::create('summaries', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->string('nama_reagent');
-            $table->string('jenis_reagent');
-            $table->integer('Stock')->default(0);
+            $table->integer('total_penggunaan');
+            $table->string('satuan', 6)->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pereaksi');
+        Schema::dropIfExists('summaries');
     }
 };

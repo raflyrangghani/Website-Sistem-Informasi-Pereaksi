@@ -52,6 +52,7 @@ class PereaksiImporter extends Importer
                     'nama_reagent' => $this->data['nama_reagent'],
                     'jenis_reagent' => $this->data['jenis_reagent'],
                     'jumlah_restock' => $stockDifference,
+                    'satuan' => $this->data['satuan'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -64,6 +65,7 @@ class PereaksiImporter extends Importer
                     'nama_reagent' => $this->data['nama_reagent'],
                     'jenis_reagent' => $this->data['jenis_reagent'],
                     'jumlah_penggunaan' => abs($stockDifference), // Gunakan nilai absolut untuk jumlah penggunaan
+                    'satuan' => $this->data['satuan'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

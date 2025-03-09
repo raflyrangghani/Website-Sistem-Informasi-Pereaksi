@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ImportAction;
 use Filament\Actions\Exports\Models\Export;
@@ -54,6 +55,7 @@ class PereaksiResource extends Resource
                     ->required()
                     ->label('Jenis Reagent')
                     ->options([
+                        'Buffer Solution' => 'Buffer Solution',
                         'Corrosive' => 'Corrosive',
                         'Flammable' => 'Flammable',
                         'Harmful' => 'Harmful',
@@ -61,12 +63,24 @@ class PereaksiResource extends Resource
                         'Oxidizing' => 'Oxidizing',
                         'Toxic' => 'Toxic',
                     ])
-                    ->placeholder('Masukkan jenis reagent'),
+                    ->placeholder('Pilih jenis reagent'),
                 TextInput::make('Stock')
                     ->required()
                     ->numeric()
                     ->label('Jumlah Stock')
                     ->placeholder('Masukkan jumlah stock'),
+                Select::make('satuan')
+                    ->options(['Gram' => 'Gram', 'Liter' => 'Liter'])
+                    ->required()
+                    ->placeholder('Pilih satuan'),
+                DatePicker::make('expired_date')
+                    ->label('Expiration Date')
+                    ->nullable(),
+                TextInput::make('min_stock')
+                    ->label('Minimum Stock')
+                    ->numeric()
+                    ->required()
+                    ->placeholder('Masukkan minimum stock'), 
             ]);
     }
 
@@ -87,8 +101,13 @@ class PereaksiResource extends Resource
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('Stock')
-                    ->label('Stock (ml/g)')
+                    ->label('Stock')
                     ->sortable()
+                    ->searchable()
+                    ->suffix(fn (Pereaksi $record) => ' ' . $record->satuan),
+                TextColumn::make('expired_date')
+                    ->date()
+                    ->label('Expires')
                     ->searchable(),
                 TextColumn::make('status')
                     ->label('Status')

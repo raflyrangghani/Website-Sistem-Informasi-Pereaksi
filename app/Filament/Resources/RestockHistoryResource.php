@@ -41,6 +41,7 @@ class RestockHistoryResource extends Resource
                         if ($pereaksi) {
                             $set('kode_reagent', $pereaksi->kode_reagent);
                             $set('jenis_reagent', $pereaksi->jenis_reagent);
+                            $set('satuan', $pereaksi->satuan);
                         }
                     }),
                 TextInput::make('kode_reagent')
@@ -49,12 +50,16 @@ class RestockHistoryResource extends Resource
                     ->required(),
                 TextInput::make('jenis_reagent')
                     ->label('Jenis Reagent')
-                    ->readOnly(),
+                    ->readOnly()
+                    ->required(),
                 TextInput::make('jumlah_restock')
-                    ->label('Jumlah Restock (Gram)')
+                    ->label('Jumlah Restock')
                     ->numeric()
                     ->required()
                     ->minValue(1),
+                TextInput::make('satuan')
+                    ->label('Satuan')
+                    ->readOnly(),
             ]);
     }
 
@@ -77,7 +82,8 @@ class RestockHistoryResource extends Resource
                 TextColumn::make('jumlah_restock')
                     ->label('Jumlah Penambahan Stock')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->suffix(fn (RestockHistory $record) => ' ' . $record->satuan),
                 TextColumn::make('created_at')
                     ->label('Tanggal Penambahan Stock')
                     ->sortable()

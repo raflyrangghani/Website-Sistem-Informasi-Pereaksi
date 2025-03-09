@@ -14,6 +14,7 @@ class RestockHistory extends Model
         'nama_reagent',
         'jenis_reagent',
         'jumlah_restock',
+        'satuan',
     ];
     
     public $timestamps = true;

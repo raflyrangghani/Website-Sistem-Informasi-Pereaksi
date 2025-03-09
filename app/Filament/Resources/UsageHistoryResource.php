@@ -50,22 +50,25 @@ class UsageHistoryResource extends Resource
                         if ($pereaksi) {
                             $set('kode_reagent', $pereaksi->kode_reagent);
                             $set('jenis_reagent', $pereaksi->jenis_reagent);
+                            $set('satuan', $pereaksi->satuan);
                         }
                     }),
                 TextInput::make('kode_reagent')
                     ->label('Kode Reagent')
-                    ->disabled()
+                    ->readOnly()
                     ->required(),
                 TextInput::make('jenis_reagent')
                     ->label('Jenis Reagent')
-                    ->disabled(),
-                Select::make('jumlah_penggunaan')
-                    ->label('Jumlah Penggunaan (Gram)')
-                    ->options([
-                        4 => '4',
-                        8 => '8',
-                    ])
+                    ->readOnly()
                     ->required(),
+                TextInput::make('jumlah_penggunaan')
+                    ->label('Jumlah Penggunaan')
+                    ->numeric()
+                    ->required()
+                    ->minValue(1),
+                TextInput::make('satuan')
+                    ->label('Satuan')
+                    ->readOnly(),
             ]);
     }
 
@@ -92,7 +95,8 @@ class UsageHistoryResource extends Resource
                 TextColumn::make('jumlah_penggunaan')
                     ->label('Jumlah Penggunaan')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->suffix(fn (UsageHistory $record) => ' ' . $record->satuan),
                 TextColumn::make('created_at')
                     ->label('Tanggal Penggunaan')
                     ->sortable()

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Summary extends Model
 {
-    protected $fillable = ['nama_reagent', 'total_penggunaan'];
+    protected $fillable = ['nama_reagent', 'total_penggunaan', 'satuan'];
 
     public static function updateSummary()
     {

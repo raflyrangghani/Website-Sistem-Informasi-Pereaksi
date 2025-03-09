@@ -18,13 +18,17 @@ class Pereaksi extends Model
         'kode_reagent',
         'nama_reagent',
         'jenis_reagent',
-        'Stock'
+        'Stock',
+        'satuan',
+        'min_stock',
+        'expired_date'
     ];
 
     // Explicitly cast KODE to string if needed
     protected $casts = [
         'kode_reagent' => 'string',
         'Stock' => 'integer',
+        'expired_date' => 'date',
     ];
     
     public function usageHistories()
@@ -40,16 +44,18 @@ class Pereaksi extends Model
     public function getStatusAttribute(): string
     {
         $stock = $this->Stock;
-        
-        if ($stock === 0) {
+        $minStock = $this->min_stock;
+
+        if ($stock == 0) {
             return 'Out of Stock';
         }
         
-        if ($stock <= 500) {
+        if ($stock < $minStock) {
             return 'Under Stock';
         }
         
         return 'In Stock';
     }
+    
     protected $guarded = [];
 }

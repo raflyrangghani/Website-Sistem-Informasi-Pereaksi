@@ -14,6 +14,7 @@ class UsageHistory extends Model
         'nama_reagent',
         'jenis_reagent',
         'jumlah_penggunaan',
+        'satuan',
     ];
 
     public $timestamps = true;
