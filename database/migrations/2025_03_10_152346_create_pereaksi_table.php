@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('jenis_reagent');
             $table->integer('Stock')->default(0);
             $table->string('satuan', 6)->nullable();
+            $table->json('lot_numbers')->nullable();
             $table->integer('min_stock')->nullable();
             $table->date('expired_date')->nullable();
             $table->timestamps();

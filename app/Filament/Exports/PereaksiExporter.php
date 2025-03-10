@@ -18,6 +18,12 @@ class PereaksiExporter extends Exporter
             ExportColumn::make('nama_reagent'),
             ExportColumn::make('jenis_reagent'),
             ExportColumn::make('Stock'),
+            ExportColumn::make('satuan'),
+            ExportColumn::make('lot_numbers')
+                ->label('Lot Numbers')
+                ->getStateUsing(fn (Pereaksi $record) => implode(', ', $record->lot_numbers ?? [])),
+            ExportColumn::make('min_stock')->label('Minimum Stock'),
+            ExportColumn::make('expired_date')->label('Expiration Date'),
         ];
     }
 

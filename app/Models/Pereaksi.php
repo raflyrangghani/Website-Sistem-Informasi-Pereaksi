@@ -20,6 +20,7 @@ class Pereaksi extends Model
         'jenis_reagent',
         'Stock',
         'satuan',
+        'lot_numbers',
         'min_stock',
         'expired_date'
     ];
@@ -29,6 +30,7 @@ class Pereaksi extends Model
         'kode_reagent' => 'string',
         'Stock' => 'integer',
         'expired_date' => 'date',
+        'lot_numbers' => 'array',
     ];
     
     public function usageHistories()

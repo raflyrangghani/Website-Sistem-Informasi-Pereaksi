@@ -15,8 +15,8 @@ class Summary extends Model
 
     public static function updateSummaryWithFilters(?string $startDate = null, ?string $endDate = null)
     {
-        $query = UsageHistory::groupBy('nama_reagent')
-            ->selectRaw('nama_reagent, SUM(jumlah_penggunaan) as total_penggunaan');
+        $query = UsageHistory::groupBy('nama_reagent', 'satuan')
+            ->selectRaw('nama_reagent, SUM(jumlah_penggunaan) as total_penggunaan', 'satuan');
 
         if ($startDate) {
             $query->where('created_at', '>=', $startDate);
@@ -32,7 +32,8 @@ class Summary extends Model
         foreach ($summaries as $summary) {
             static::create([
                 'nama_reagent' => $summary->nama_reagent,
-                'total_penggunaan' => $summary->total_penggunaan
+                'total_penggunaan' => $summary->total_penggunaan,
+                'satuan' => $summary->satuan,
             ]);
         }
     }

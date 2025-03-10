@@ -30,6 +30,13 @@ class PereaksiImporter extends Importer
                 ->requiredMapping()
                 ->numeric()
                 ->rules(['required', 'integer']),
+            ImportColumn::make('satuan')
+                ->rules(['max:6']),
+            ImportColumn::make('min_stock')
+                ->numeric()
+                ->rules(['integer']),
+            ImportColumn::make('expired_date')
+                ->rules(['date']),
         ];
     }
 

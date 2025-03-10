@@ -23,6 +23,7 @@ use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Actions\ImportAction;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\ActionGroup;
 
 
 class PereaksiResource extends Resource
@@ -73,6 +74,18 @@ class PereaksiResource extends Resource
                     ->options(['Gram' => 'Gram', 'Liter' => 'Liter'])
                     ->required()
                     ->placeholder('Pilih satuan'),
+                Forms\Components\TagsInput::make('lot_numbers')
+                    ->label('Lot Numbers')
+                    ->placeholder('Masukkan lot numbers')
+                    ->helperText('Pisahkan setiap lot number dengan koma atau tekan Enter.')
+                    ->separator(',')
+                    ->splitKeys(['Tab', 'Enter', ','])
+                    ->dehydrateStateUsing(function ($state) {
+                        if (is_array($state) && count($state) === 1 && strpos($state[0], ',') !== false) {
+                            return array_map('trim', explode(',', $state[0]));
+                        }
+                        return array_map('trim', $state);
+                    }),
                 DatePicker::make('expired_date')
                     ->label('Expiration Date')
                     ->nullable(),
@@ -105,9 +118,16 @@ class PereaksiResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->suffix(fn (Pereaksi $record) => ' ' . $record->satuan),
+                TextColumn::make('lot_numbers')
+                    ->label('Lot No.')
+                    ->listWithLineBreaks()
+                    ->limitList(1)
+                    ->expandableLimitedList()
+                    ->searchable(),
                 TextColumn::make('expired_date')
                     ->date()
                     ->label('Expires')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('status')
                     ->label('Status')
@@ -153,8 +173,11 @@ class PereaksiResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->iconButton()
+                
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
