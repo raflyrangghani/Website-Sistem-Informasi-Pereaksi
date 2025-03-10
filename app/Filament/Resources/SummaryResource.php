@@ -38,9 +38,13 @@ class SummaryResource extends Resource
                     ->required()
                     ->disabled(),
                 Forms\Components\TextInput::make('total_penggunaan')
-                    ->label('Total Penggunaan (Gram)')
+                    ->label('Total Penggunaan')
                     ->required()
                     ->numeric()
+                    ->disabled()
+                    ->suffix(fn (Summary $record) => ' ' . $record->satuan),
+                Forms\Components\TextInput::make('satuan')
+                    ->label('Satuan')
                     ->disabled(),
             ]);
     }
@@ -72,11 +76,10 @@ class SummaryResource extends Resource
                             ->label('To'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        // Simpan filter ke session atau state sementara
                         if ($data['start_date'] || $data['end_date']) {
                             Summary::updateSummaryWithFilters($data['start_date'], $data['end_date']);
                         } else {
-                            Summary::updateSummary(); // Reset ke semua data jika filter kosong
+                            Summary::updateSummary();
                         }
                         return $query;
                     })
@@ -105,8 +108,9 @@ class SummaryResource extends Resource
                     ->label('Export CSV/XLSX')
                     ->exporter(SummaryExporter::class)
                     ->fileName(fn (Export $export): string => "Laporan-Penggunaan-Reagent-{$export->getKey()}")
-                    ->color('success') // Warna hijau
+                    ->color('success')
                     ->icon('heroicon-o-table-cells')
+                    ->columnMapping(false) // Pastikan column mapping dimatikan
                     ->form([
                         DatePicker::make('start_date')
                             ->label('Dari Tanggal')
@@ -128,9 +132,11 @@ class SummaryResource extends Resource
                             ->placeholder('Pilih nama reagent'),
                     ])
                     ->before(function (array $data) {
+                        \Log::info('Export Action Data:', $data); // Debugging isi $data
                         // Hitung ulang summary berdasarkan filter sebelum ekspor
-                        $query = UsageHistory::groupBy('nama_reagent')
-                            ->selectRaw('nama_reagent, SUM(jumlah_penggunaan) as total_penggunaan')
+                        $query = UsageHistory::query()
+                            ->selectRaw('nama_reagent, satuan, SUM(jumlah_penggunaan) as total_penggunaan')
+                            ->groupBy('nama_reagent', 'satuan')
                             ->when($data['start_date'], fn ($q) => $q->where('created_at', '>=', $data['start_date']))
                             ->when($data['end_date'], fn ($q) => $q->where('created_at', '<=', $data['end_date']))
                             ->when($data['jenis_reagent'], fn ($q) => $q->whereHas('pereaksi', fn ($q) => $q->whereIn('jenis_reagent', $data['jenis_reagent'])))
@@ -143,8 +149,12 @@ class SummaryResource extends Resource
                             Summary::create([
                                 'nama_reagent' => $summary->nama_reagent,
                                 'total_penggunaan' => $summary->total_penggunaan,
+                                'satuan' => $summary->satuan,
                             ]);
                         }
+                    })
+                    ->modifyQueryUsing(function (Builder $query, array $data) {
+                        return $query->when($data['nama_reagent'], fn ($q) => $q->whereIn('nama_reagent', $data['nama_reagent']));
                     }),
                 Tables\Actions\Action::make('export_pdf')
                     ->label('Export PDF')
@@ -170,8 +180,9 @@ class SummaryResource extends Resource
                             ->placeholder('Pilih nama reagent'),
                     ])
                     ->action(function (array $data) {
-                        $query = UsageHistory::groupBy('nama_reagent')
-                            ->selectRaw('nama_reagent, SUM(jumlah_penggunaan) as total_penggunaan')
+                        $query = UsageHistory::query()
+                            ->selectRaw('nama_reagent, satuan, SUM(jumlah_penggunaan) as total_penggunaan')
+                            ->groupBy('nama_reagent', 'satuan')
                             ->when($data['start_date'], fn ($q) => $q->where('created_at', '>=', $data['start_date']))
                             ->when($data['end_date'], fn ($q) => $q->where('created_at', '<=', $data['end_date']))
                             ->when($data['jenis_reagent'], fn ($q) => $q->whereHas('pereaksi', fn ($q) => $q->whereIn('jenis_reagent', $data['jenis_reagent'])))
@@ -182,7 +193,7 @@ class SummaryResource extends Resource
                         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.summary-report', [
                             'summaries' => $summaries,
                             'start_date' => $data['start_date'],
-                            'end_date' => $data['end_date']
+                            'end_date' => $data['end_date'],
                         ]);
                         return response()->streamDownload(
                             fn () => print($pdf->output()),

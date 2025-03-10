@@ -6,24 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Summary extends Model
 {
-    protected $fillable = ['nama_reagent', 'total_penggunaan', 'satuan'];
+    protected $fillable = [
+        'nama_reagent',
+        'total_penggunaan',
+        'satuan',
+    ];
 
     public static function updateSummary()
     {
-        self::updateSummaryWithFilters(null, null); // Tanpa filter
+        self::updateSummaryWithFilters(null, null);
     }
 
     public static function updateSummaryWithFilters(?string $startDate = null, ?string $endDate = null)
     {
-        $query = UsageHistory::groupBy('nama_reagent', 'satuan')
-            ->selectRaw('nama_reagent, SUM(jumlah_penggunaan) as total_penggunaan', 'satuan');
+        $query = UsageHistory::query()
+            ->selectRaw('nama_reagent, satuan, SUM(jumlah_penggunaan) as total_penggunaan')
+            ->groupBy('nama_reagent', 'satuan');
 
-        if ($startDate) {
-            $query->where('created_at', '>=', $startDate);
-        }
-        if ($endDate) {
-            $query->where('created_at', '<=', $endDate);
-        }
+        if ($startDate) $query->where('created_at', '>=', $startDate);
+        if ($endDate) $query->where('created_at', '<=', $endDate);
 
         $summaries = $query->get();
 

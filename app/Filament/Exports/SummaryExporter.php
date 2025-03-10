@@ -22,7 +22,8 @@ class SummaryExporter extends Exporter
             ExportColumn::make('nama_reagent')
                 ->label('Nama Reagent'),
             ExportColumn::make('total_penggunaan')
-                ->label('Total Penggunaan (Gram)'),
+                ->label('Total Penggunaan')
+                ->formatStateUsing(fn ($state, Summary $record) => number_format($state, 2) . ' ' . $record->satuan),
             ExportColumn::make('created_at')
                 ->label('Tanggal Dibuat'),
             ExportColumn::make('updated_at')
@@ -48,9 +49,13 @@ class SummaryExporter extends Exporter
             ->setFontSize(12)
             ->setFontName('Arial')
             ->setCellAlignment(CellAlignment::CENTER)
-            ->setBackgroundColor('4CAF50') // Hijau
-            ->setFontColor('FFFFFF') // Putih
-            ->setBorder(new Border(Border::BOTTOM, '000000', Border::WIDTH_THIN));
+            ->setBackgroundColor('4CAF50')
+            ->setFontColor('FFFFFF')
+            ->setBorder(
+                new Border(
+                    new Border\BorderPart(Border::BOTTOM, '000000', Border::WIDTH_THIN)
+                )
+            );
     }
 
     public function getXlsxCellStyle(): ?Style
@@ -58,6 +63,20 @@ class SummaryExporter extends Exporter
         return (new Style())
             ->setFontSize(11)
             ->setFontName('Arial')
-            ->setBorder(new Border(Border::ALL, 'D3D3D3', Border::WIDTH_THIN));
+            ->setBorder(
+                new Border(
+                    new Border\BorderPart(Border::TOP, 'D3D3D3', Border::WIDTH_THIN),
+                    new Border\BorderPart(Border::RIGHT, 'D3D3D3', Border::WIDTH_THIN),
+                    new Border\BorderPart(Border::BOTTOM, 'D3D3D3', Border::WIDTH_THIN),
+                    new Border\BorderPart(Border::LEFT, 'D3D3D3', Border::WIDTH_THIN)
+                )
+            );
+    }
+
+    public function export(Export $export): void
+    {
+        Log::info('Starting Excel Export', ['export_id' => $export->id]);
+        parent::export($export);
+        Log::info('Finished Excel Export', ['export_id' => $export->id]);
     }
 }

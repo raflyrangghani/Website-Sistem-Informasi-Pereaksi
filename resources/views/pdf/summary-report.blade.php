@@ -95,17 +95,23 @@
         <table>
             <thead>
                 <tr>
-                    <th>Nama Reagent</th>
-                    <th>Total Penggunaan (Gram)</th>
+                    <th width="50%">Nama Reagent</th>
+                    <th width="30%">Total Penggunaan</th>
+                    <th width="20%">Satuan</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($summaries as $summary)
+                @forelse ($summaries as $summary)
                     <tr>
                         <td>{{ $summary->nama_reagent }}</td>
                         <td>{{ number_format($summary->total_penggunaan, 2) }}</td>
+                        <td>{{ $summary->satuan }}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="3" style="text-align: center;">Tidak ada data untuk periode ini.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

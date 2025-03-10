@@ -25,10 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
         $enabled = Setting::where('key', 'stock_alert_enabled')->value('value') ?? false;
         if ($enabled) {
-            $schedule->command('stock:alert')
-                     ->weekdays()
-                     ->dailyAt('09:00')
-                     ->timezone('Asia/Jakarta');
+            $schedule->command('stock:alert')->everyMinute();
         }
     })
     ->create();

@@ -84,6 +84,7 @@
                         <th>Reagent Name</th>
                         <th>Code</th>
                         <th>Current Stock</th>
+                        <th>Unit</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -92,7 +93,8 @@
                     <tr>
                         <td>{{ $reagent->nama_reagent }}</td>
                         <td>{{ $reagent->kode_reagent }}</td>
-                        <td>{{ $reagent->Stock }}</td>
+                        <td>{{ number_format($reagent->Stock, 2) }}</td>
+                        <td>{{ $reagent->satuan }}</td>
                         <td class="status-{{ $reagent->Stock == 0 ? 'out' : 'under' }}">
                             {{ $reagent->status }}
                         </td>
