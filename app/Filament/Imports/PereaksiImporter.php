@@ -32,6 +32,16 @@ class PereaksiImporter extends Importer
                 ->rules(['required', 'integer']),
             ImportColumn::make('satuan')
                 ->rules(['max:6']),
+            ImportColumn::make('lot_numbers')
+                ->castStateUsing(function ($state) {
+                    // Jika string dengan koma, ubah jadi array
+                    if (is_string($state) && strpos($state, ',') !== false) {
+                        return array_map('trim', explode(',', $state));
+                    }
+                    // Jika sudah array (misalnya dari JSON), kembalikan apa adanya
+                    return is_array($state) ? $state : [$state];
+                })
+                ->rules(['nullable']),
             ImportColumn::make('min_stock')
                 ->numeric()
                 ->rules(['integer']),
